@@ -33,7 +33,35 @@ export class ImagesService {
     }
   }
 
-  async getImages() {
-    return this.imageModal.find();
+  async deleteImage(id: string, userId: string) {
+    const img = await this.imageModal.findById(id);
+    
+    if (!img || `${img.userId}` !== userId) {
+      throw new Error('Image not found');
+    }
+    // const imageUrl = img.imageUrl || "";
+  
+    // // First, attempt to delete the image from Cloudinary if an URL exists.
+    // if (imageUrl) {
+    //   console.log("url", imageUrl);
+    //   try {
+    //     await this.uploadService.deleteImage(imageUrl);
+    //   } catch (error) {
+    //     console.error("Cloudinary deletion failed:", error);
+    //     // Optionally, decide how to handle the failure.
+    //     throw new Error('Failed to delete image from Cloudinary');
+    //   }
+    // }
+  
+    // // Now, delete the image record from the database.
+    await this.imageModal.findByIdAndDelete(id);
+  
+    return "Image deleted successfully";
+  }
+  
+
+  async getImages(id:string) {
+    const ret = await this.imageModal.find({ userId: id });
+    return ret;
   }
 }

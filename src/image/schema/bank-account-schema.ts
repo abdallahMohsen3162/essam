@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { User } from 'src/users/entities/user';
 
-@Schema()
+@Schema({ timestamps: true }) 
 export class Image {
   @Prop({ required: [true, 'Image URL is required'] })
   imageUrl: string;

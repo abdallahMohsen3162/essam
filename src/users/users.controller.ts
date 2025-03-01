@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
+import { ImageGuard } from 'src/auth/image.guard';
 
 
 @Controller('users')
@@ -20,6 +21,33 @@ export class UsersController {
     return this.usersService.getAllUsers();
   }
 
+
+  // Login a user
+  @Post('login')
+  async login(@Body() dto: CreateUserDto) {
+    return this.usersService.login(dto);
+  }
+
+  // register a user
+  @Post('register')
+  async register(@Body() dto: CreateUserDto) {
+    return this.usersService.register(dto);
+  }
+
+  // Get the profile of the logged in user
+  @Get('profile')
+  @UseGuards(ImageGuard)
+  async getProfile(@Req() req) {
+    return this.usersService.getProfile(req.user.id);
+  }
+
+
+  // Edit the profile of the logged in user
+  @Patch('profile')
+  @UseGuards(ImageGuard)
+  async editProfile(@Req() req, @Body() dto: Partial<CreateUserDto>) {
+    return this.usersService.editProfile(req.user.id, dto);
+  }
 
 
 }
