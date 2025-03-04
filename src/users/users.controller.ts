@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import { ImageGuard } from 'src/auth/image.guard';
+import { PaginationQueryParams } from 'src/common/types';
+import { SearchUsersDto } from './dto/search-users-dto';
 
 
 @Controller('users')
@@ -17,8 +19,9 @@ export class UsersController {
 
   // Get all users
   @Get()
-  async getAllUsers() {
-    return this.usersService.getAllUsers();
+  async getAllUsers(@Query() query: SearchUsersDto) {
+    
+    return this.usersService.getAllUsers(query);
   }
 
 
