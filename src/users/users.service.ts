@@ -28,14 +28,6 @@ export class UsersService {
 
   async getAllUsers(query: SearchUsersDto): Promise<UserDocument[]> {
 
-    for(let i = 0; i < 10000; i++) {
-      console.log("i = ", i);
-      
-      const password = Math.random().toString(36).substring(2, 10);
-      const email = `user-${i}${Math.floor(Math.random() * 1000)}@example.com`;
-      const name = `User ${Math.floor(Math.random() * 1000)}`;
-      const user = await this.createUser({name, email, password});
-    }
 
     return paginate(
       this.userModel,{name: query.userName}, 
