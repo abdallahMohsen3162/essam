@@ -4,6 +4,8 @@ import { Model } from 'mongoose';
 import { CreateImageDto } from './dto/create-bank-account';
 import { Image, ImageDocument } from './schema/bank-account-schema';
 import { UploadService } from 'src/upload/upload.service';
+import { paginate } from 'src/common/paginstion';
+import { SearchImagesDto } from './dto/search-images.dto';
 // import { UploadService } from 'src/upload/upload.service';
 
 
@@ -60,8 +62,16 @@ export class ImagesService {
   }
   
 
-  async getImages(id:string) {
-    const ret = await this.imageModal.find({ userId: id });
-    return ret;
+  async getImages(dto:SearchImagesDto) {
+    console.log(dto);
+    
+  return paginate(
+    this.imageModal,
+    { userId: dto.userId },
+    dto.page,
+    dto.limit,
+    { createdAt: -1 }
+  );
+    
   }
 }

@@ -9,19 +9,23 @@ export async function paginate<T>(
 ): Promise<any> {
   
   const filter = {};
+  for(const key in query){
+    if(query[key]){
+      filter[key] = query[key];
+    }
+  }
   if(query.name){
     filter["name"] = { $regex: new RegExp('^' + query['name']) };
   }
   const count = await model.countDocuments(filter);
   const numOfPages = Math.ceil(count / limit);
-  console.log("query==", query);
-  console.log("count==", count);
 
   const data = await model
     .find(filter)
     .sort(sort)
     .skip((page - 1) * limit)
     .limit(limit)
+    .populate({ path: 'userId', as: 'user' })
     .lean();
   const paginationObj = {
     count,

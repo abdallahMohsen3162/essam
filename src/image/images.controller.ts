@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, UseInterceptors, UploadedFile, Delete, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseInterceptors, UploadedFile, Delete, Param, UseGuards, Req, Query } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImagesService } from './images.service';
 import { CreateImageDto } from './dto/create-bank-account';
 import { ImageGuard } from 'src/auth/image.guard';
+import { SearchImagesDto } from './dto/search-images.dto';
 
 @Controller('images')
 export class ImageController {
@@ -23,10 +24,12 @@ export class ImageController {
 
   @Get()
   @UseGuards(ImageGuard)
-  async getImages(@Req() req) {
+  async getImages(@Req() req, @Query() query: SearchImagesDto) {
     const user = req.user;
-    return this.imgService.getImages(user.id);
+    query.userId = user.id;
+    return this.imgService.getImages(query);
   }
+  
   @Delete(':id')
   @UseGuards(ImageGuard)
   async deleteImage(@Req() req,@Param('id') id: string) {
