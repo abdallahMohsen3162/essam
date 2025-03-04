@@ -7,13 +7,15 @@ export async function paginate<T>(
   limit: number = 10,       // Page size from request
   sort: any = { createdAt: -1 } // Optional sorting
 ): Promise<any> {
-  const count = await model.countDocuments(query);
-  const numOfPages = Math.ceil(count / limit);
-  console.log("query==", query);
+  
   const filter = {};
   if(query.name){
     filter["name"] = { $regex: new RegExp('^' + query['name']) };
   }
+  const count = await model.countDocuments(filter);
+  const numOfPages = Math.ceil(count / limit);
+  console.log("query==", query);
+  console.log("count==", count);
 
   const data = await model
     .find(filter)
