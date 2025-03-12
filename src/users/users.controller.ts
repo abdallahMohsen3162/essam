@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch, Query, Res, UsePipes } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import { ImageGuard } from 'src/auth/image.guard';
@@ -8,6 +8,7 @@ import { AuthGuard } from 'src/auth/AuthGuard/Auth.guard';
 import { Roles } from 'src/decorators/roles';
 import { Response } from 'express';
 import { AuthConstants } from 'src/common/AuthConstants';
+import { EmailPipePipe } from 'src/pipes/email-pipe/email-pipe.pipe';
 
 
 @Controller('users')
@@ -38,7 +39,10 @@ export class UsersController {
 
   // register a user
   @Post('register')
-  async register(@Body() dto: CreateUserDto) {
+  // @UsePipes(EmailPipePipe)
+  async register(@Body(EmailPipePipe) dto: CreateUserDto) {
+
+    return dto
     return this.usersService.register(dto);
   }
 
