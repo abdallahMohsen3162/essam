@@ -1,9 +1,13 @@
-import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch, Query, Res } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import { ImageGuard } from 'src/auth/image.guard';
 import { PaginationQueryParams } from 'src/common/types';
 import { SearchUsersDto } from './dto/search-users-dto';
+import { AuthGuard } from 'src/auth/AuthGuard/Auth.guard';
+import { Roles } from 'src/decorators/roles';
+import { Response } from 'express';
+import { AuthConstants } from 'src/common/AuthConstants';
 
 
 @Controller('users')
@@ -19,8 +23,9 @@ export class UsersController {
 
   // Get all users
   @Get()
+  @UseGuards(AuthGuard)
+  @Roles(AuthConstants.Users.GET)
   async getAllUsers(@Query() query: SearchUsersDto) {
-    
     return this.usersService.getAllUsers(query);
   }
 
@@ -52,5 +57,10 @@ export class UsersController {
     return this.usersService.editProfile(req.user.id, dto);
   }
 
+  @Get('sse')
+  async testEvent(@Res() res: Response) {
+    return this.usersService.sse(res);
+
+  }
 
 }

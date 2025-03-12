@@ -7,8 +7,11 @@ export class Image {
   @Prop({ required: [true, 'Image URL is required'] })
   imageUrl: string;
 
-  @Prop({ type: Types.ObjectId, ref: User.name, required: [true, 'User Id is required'] })
-  userId: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'User', required: [true, 'User Id is required'] })
+  user: Types.ObjectId;
+
+  @Prop({ required: false })
+  text?: string;
 }
 
 export type ImageDocument = Image & Document;

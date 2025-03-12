@@ -9,14 +9,18 @@ import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { SearchUsersDto } from './dto/search-users-dto';
 import { paginate } from 'src/common/paginstion';
+import { Observable } from 'rxjs';
+import { Response } from 'express';
+import { AuthConstants } from 'src/common/AuthConstants';
+
+
 
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>
-    ,
-    private readonly config: ConfigService
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    private readonly config: ConfigService,
 
   ) {}
 
@@ -26,14 +30,31 @@ export class UsersService {
     return user;
   }
 
-  async getAllUsers(query: SearchUsersDto): Promise<UserDocument[]> {
-
-
-    return paginate(
-      this.userModel,{name: query.userName}, 
-      query.page, 
-      query.limit
-    );
+  async getAllUsers(query: SearchUsersDto): Promise<any> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+    const filter = {};
+    for(const key in query){
+      if(query[key] && key !== 'page' && key !== 'limit'){
+        filter[key] = query[key];
+      }
+    }
+    const numOfPages = Math.ceil(await this.userModel.countDocuments(filter) / limit);
+    const currentPage = page > numOfPages ? numOfPages : page;
+    const prevPage = currentPage > 1 ? currentPage - 1 : null;
+    const nextPage = currentPage < numOfPages ? currentPage + 1 : null;
+    const pagination = {
+      count: await this.userModel.countDocuments(filter),
+      currentPage,
+      numOfPages,
+      prevPage,
+      nextPage
+    }
+    const projection = {name : true, _id: true, email: true};
+    // console.log(this.userModel.find());
+    return {pagination,
+      data: await this.userModel.find(filter, projection).skip(skip).limit(limit).exec()};
   }
 
   async login(dto:LoginUserDto): Promise<any> {
@@ -51,7 +72,10 @@ export class UsersService {
     const token = jwt.sign({ 
       email: user.email, 
       id: user._id,
-      arr:[1,2,3]
+      claims:[
+        AuthConstants.Users.CREATE,
+        AuthConstants.Users.GET
+      ]
      }, this.config.get('JWT_SECRET')!);
     
     
@@ -82,4 +106,27 @@ export class UsersService {
     await user.save();
     return user;
   }
+
+  async sse(res: Response): Promise<any> {
+  
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    let counter = 0;
+    const interval = setInterval(() => {
+      counter++;
+      res.write(`data: Counter = ${counter}\n\n`);
+
+      if (counter >= 5) {
+        clearInterval(interval);
+        res.write(`data: Final Response\n\n`);
+        res.end();
+      }
+    }, 1000);
+
+    return ''
+  }
+
+
 }

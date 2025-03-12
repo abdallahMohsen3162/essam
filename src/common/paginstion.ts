@@ -5,7 +5,8 @@ export async function paginate<T>(
   query: any = {},          // Query filters
   page: number = 1,         // Current page from request
   limit: number = 10,       // Page size from request
-  sort: any = { createdAt: -1 } // Optional sorting
+  sort: any = { createdAt: -1 }, // Optional sorting
+  populateParameters: any = {}
 ): Promise<any> {
   
   const filter = {};
@@ -25,7 +26,7 @@ export async function paginate<T>(
     .sort(sort)
     .skip((page - 1) * limit)
     .limit(limit)
-    .populate({ path: 'userId', as: 'user' })
+    .populate()
     .lean();
   const paginationObj = {
     count,

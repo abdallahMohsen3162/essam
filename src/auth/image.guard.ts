@@ -17,7 +17,6 @@ export class ImageGuard implements CanActivate {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!);
         request.user = decoded; 
-        console.log(decoded['arr']);
         
       } catch (error) {
         console.log(error);

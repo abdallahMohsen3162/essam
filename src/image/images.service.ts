@@ -25,7 +25,13 @@ export class ImagesService {
     dto.imageUrl = url;
 
     try {
-      const img = new this.imageModal(dto);
+      const img = new this.imageModal({
+        imageUrl: url,
+        text: dto.text,
+        user: dto.userId
+      });
+      console.log("img", img);
+      
       return await img.save();
     } catch (error) {
       console.log(error.message);
@@ -37,8 +43,9 @@ export class ImagesService {
 
   async deleteImage(id: string, userId: string) {
     const img = await this.imageModal.findById(id);
+    console.log("img", img);
     
-    if (!img || `${img.userId}` !== userId) {
+    if (!img || `${img.user}` !== userId) {
       throw new Error('Image not found');
     }
     // const imageUrl = img.imageUrl || "";
@@ -64,14 +71,22 @@ export class ImagesService {
 
   async getImages(dto:SearchImagesDto) {
     console.log(dto);
-    
-  return paginate(
-    this.imageModal,
-    { userId: dto.userId },
-    dto.page,
-    dto.limit,
-    { createdAt: -1 }
-  );
-    
+    const page = dto.page || 1;
+    const limit = dto.limit || 10;
+    const skip = (page - 1) * limit;
+    const count = await this.imageModal.countDocuments({ user: dto.userId });
+    const numOfPages = Math.ceil(count / limit);
+    const currentPage = page > numOfPages ? numOfPages : page;
+    const prevPage = currentPage > 1 ? currentPage - 1 : null;
+    const nextPage = currentPage < numOfPages ? currentPage + 1 : null;
+    const pagination = {
+      count,
+      currentPage,
+      numOfPages,
+      prevPage,
+      nextPage
+    }  
+  
+    return { pagination, data: await this.imageModal.find({ user: dto.userId }).populate("user").skip(skip).limit(limit).exec() };
   }
 }

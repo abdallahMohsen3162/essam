@@ -12,7 +12,8 @@ import { UploadModule } from './upload/upload.module';
     MongooseModule.forRoot(process.env.MONGO_URI!), 
     UsersModule, 
     ImagesModule, 
-    UploadModule
+    UploadModule,
+    
   ],
 })
 export class AppModule {}

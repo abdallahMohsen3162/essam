@@ -19,6 +19,8 @@ export class ImageController {
   ) {
     dto.userId = req.user.id;
     dto.image = file;
+
+    
     return this.imgService.createImage(dto);
   }
 
@@ -29,7 +31,7 @@ export class ImageController {
     query.userId = user.id;
     return this.imgService.getImages(query);
   }
-  
+
   @Delete(':id')
   @UseGuards(ImageGuard)
   async deleteImage(@Req() req,@Param('id') id: string) {
