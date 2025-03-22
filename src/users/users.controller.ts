@@ -30,7 +30,7 @@ export class UsersController {
   
   @Get()
   @UseGuards(AuthGuard)
-  @Roles(AuthConstants.Users.GET)
+  // @Roles(AuthConstants.Users.GET)
   @UsePipes(new ValidationPipe({ transform: true }))
   @CacheTTL(10000000)
   @UseInterceptors(CacheInterceptor)
