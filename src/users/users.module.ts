@@ -7,15 +7,27 @@ import { ImagesSchema } from 'src/image/schema/bank-account-schema';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthMiddleware } from 'src/middlewares/auth.middleware';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: "Image", schema: ImagesSchema }]),
     ConfigModule.forRoot(),
-    
+    // CacheModule.register({
+    //     isGlobal: true,
+    //     ttl: 600
+    //   })
   ],
-  providers: [UsersService],
+  providers: [
+    UsersService,
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: CacheInterceptor, // Auto-cache all responses
+     
+    // }
+  ],
   controllers: [UsersController], // Add this if you have a controller
 })
 export class UsersModule implements NestModule{

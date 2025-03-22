@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Scope } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose'
 import { CreateUserDto } from './dto/create-user-dto';
@@ -16,7 +16,7 @@ import { AuthConstants } from 'src/common/AuthConstants';
 
 
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
@@ -40,6 +40,8 @@ export class UsersService {
         filter[key] = query[key];
       }
     }
+    console.log("not from cache");
+    
     const numOfPages = Math.ceil(await this.userModel.countDocuments(filter) / limit);
     const currentPage = page > numOfPages ? numOfPages : page;
     const prevPage = currentPage > 1 ? currentPage - 1 : null;
@@ -54,7 +56,7 @@ export class UsersService {
     const projection = {name : true, _id: true, email: true};
     // console.log(this.userModel.find());
     return {pagination,
-      data: await this.userModel.find(filter, projection).skip(skip).limit(limit).exec()};
+      data: await this.userModel.find(filter, projection).skip(skip).limit(limit).lean().exec()};
   }
 
   async login(dto:LoginUserDto): Promise<any> {

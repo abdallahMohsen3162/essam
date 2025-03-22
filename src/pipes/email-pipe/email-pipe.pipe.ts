@@ -6,6 +6,6 @@ export class EmailPipePipe implements PipeTransform {
     console.log("value", value);
     console.log("metadata", metadata);
     
-    return value.email;
+    return value;
   }
 }

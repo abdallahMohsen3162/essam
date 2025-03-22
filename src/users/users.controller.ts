@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch, Query, Res, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Req, UseGuards, Patch, Query, Res, UsePipes, ValidationPipe, UseInterceptors, Inject } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import { ImageGuard } from 'src/auth/image.guard';
@@ -9,11 +9,15 @@ import { Roles } from 'src/decorators/roles';
 import { Response } from 'express';
 import { AuthConstants } from 'src/common/AuthConstants';
 import { EmailPipePipe } from 'src/pipes/email-pipe/email-pipe.pipe';
+import { CACHE_MANAGER, CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   // Create a new user with a bank account
   @Post()
@@ -23,9 +27,13 @@ export class UsersController {
 
 
   // Get all users
+  
   @Get()
   @UseGuards(AuthGuard)
   @Roles(AuthConstants.Users.GET)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @CacheTTL(10000000)
+  @UseInterceptors(CacheInterceptor)
   async getAllUsers(@Query() query: SearchUsersDto) {
     return this.usersService.getAllUsers(query);
   }
